@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>Vue.js</title>
+</head>
+<body class="p-3">
+    <div id="app">
+        <div class="row mb-3">
+            <label for="city" class=" col-form-label col-md-2">Город</label>
+            <div class="col-md-5">
+                <select v-model.number="city" class="form-select" id="city">
+                    <option disabled selected value="0"></option>
+                    <option value="1">Магадан</option>
+                    <option value="2">Якутск</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="department" class=" col-form-label col-md-2">Цех</label>
+            <div class="col-md-5">
+                <select v-model.number="department" class="form-select" id="department">
+                    <option v-for="opt in departmentOptions" :disabled="opt.id == 0" :value="opt.id" >{{ opt.name }}</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="employee" class=" col-form-label col-md-2">Сотрудник</label>
+            <div class="col-md-5">
+                <select v-model.number="employee" class="form-select" id="employee">
+                    <option v-for="opt in employeeOptions" :disabled="opt.id == 0" :value="opt.id" >{{ opt.name }}</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="team" class=" col-form-label col-md-2">Бригада</label>
+            <div class="col-md-5">
+                <select v-model.number="team" class="form-select" id="team">
+                    <option disabled selected value="0"></option>
+                    <option value="1">Бригада 1</option>
+                    <option value="2">Бригада 2</option>
+                    <option value="3">Бригада 3</option>
+                    <option value="4">Бригада 4</option>
+                    <option value="5">Бригада 5</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="shift" class=" col-form-label col-md-2">Смена</label>
+            <div class="col-md-5">
+                <select v-model.number="shift" class="form-select" id="shift">
+                    <option disabled selected value="0"></option>
+                    <option value="1">Смена 1</option>
+                    <option value="2">Смена 2</option>
+                    <option value="3">Смена 3</option>
+                </select>
+            </div>
+        </div>
+        <button @click.prevent="saveData" class="btn btn-primary" :disabled="!(city && department && employee && team && shift)">Отправить</button>
+    </div>
+    <script>
+        const { createApp } = Vue
+
+        createApp({
+            data() {
+                return {
+                    city: null,
+                    department: null,
+                    employee: null,
+                    team: null,
+                    shift: null,
+
+                    departments: [
+                        {id: 1, name: 'Цех 1', city: 1},
+                        {id: 2, name: 'Цех 2', city: 1},
+                        {id: 3, name: 'Цех 3', city: 1},
+                        {id: 4, name: 'Цех 4', city: 2},
+                        {id: 5, name: 'Цех 5', city: 2},
+                        {id: 6, name: 'Цех 6', city: 2},
+                        {id: 7, name: 'Цех 7', city: 2},
+                    ],
+                    
+                    employees: [
+                        {id: 1, name: 'Василий', department: 1},
+                        {id: 2, name: 'Елена', department: 1},
+                        {id: 3, name: 'Михаил', department: 4},
+                        {id: 4, name: 'Евгений', department: 5},
+                        {id: 5, name: 'Светлана', department: 5},
+                        {id: 6, name: 'Кирилл', department: 2},
+                        {id: 7, name: 'Ольга', department: 3},
+                        {id: 8, name: 'Наталья', department: 3},
+                        {id: 9, name: 'Олег', department: 6},
+                        {id: 10, name: 'Иван', department: 6},
+                        {id: 11, name: 'Анна', department: 7},
+                    ],
+                }
+            },
+
+            computed: {
+                departmentOptions() {
+                    return [{id: 0, name: ''}].concat(this.city ? this.departments.filter(el => el.city == this.city) : this.departments);
+                },
+
+                employeeOptions() {
+                    return [{id: 0, name: ''}].concat(this.department ? this.employees.filter(el => el.department == this.department) : this.city ? this.employees.filter(el => this.departments.filter(el => el.city == this.city).map(el => el.id).includes(el.department)) : this.employees);
+                },
+            },
+
+            methods: {
+                saveData() {
+                    const form = {
+                        city: this.city,
+                        department: this.department,
+                        employee: this.employee,
+                        team: this.team,
+                        shift: this.shift
+                    };
+
+                    document.cookie = 'form=' + JSON.stringify(form);
+                },
+            },
+
+            watch: {
+                city() {
+                    this.department = 0;
+                },
+
+                department() {
+                    this.employee = 0;
+                },
+            }
+        }).mount('#app')
+    </script>
+</body>
+</html>
